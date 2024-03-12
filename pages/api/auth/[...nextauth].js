@@ -1,14 +1,40 @@
-import NextAuth from 'next-auth/next';
-import EmailProvider from 'next-auth/providers/email';
+import Users from '@/pages/models/userModel';
 import { MongoDBAdapter } from '@auth/mongodb-adapter';
-import clientPromise from './lib/mongodb';
+import bcrypt from 'bcrypt';
+import NextAuth from 'next-auth/next';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import EmailProvider from 'next-auth/providers/email';
 import GitHubProvider from 'next-auth/providers/github';
-import TwitterProvider from 'next-auth/providers/twitter';
 import GoogleProvider from 'next-auth/providers/google';
+import TwitterProvider from 'next-auth/providers/twitter';
+import connectDB from './lib/connectDB';
+import clientPromise from './lib/mongodb';
+
+connectDB();
 
 export default NextAuth({
   adapter: MongoDBAdapter(clientPromise),
   providers: [
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        username: { label: 'Username', type: 'text', placeholder: 'jsmith' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials, req) {
+        const email = credentials.email;
+        const password = credentials.password;
+        const user = await Users.findOne({ email });
+
+        if (!user) {
+          throw new Error("You haven't registered yet!");
+        }
+
+        if (user) {
+          return signiInUser({ password, user });
+        }
+      },
+    }),
     EmailProvider({
       server: {
         host: process.env.EMAIL_SERVER_HOST,
@@ -35,7 +61,21 @@ export default NextAuth({
     }),
   ],
   pages: {
-    signIn: '/signin'
+    signIn: '/signin',
   },
   secret: '1234',
+  database: process.env.MONGODB_URI,
 });
+
+const signiInUser = async ({ password, user }) => {
+  if (!user.password) {
+    throw new Error('Please enter password');
+  }
+
+  const isMatch = await bcrypt.compare(password, user);
+  if (!isMatch) {
+    throw new Error('Email or Password not correct');
+  }
+
+  return user;
+};
