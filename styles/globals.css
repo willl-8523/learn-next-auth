@@ -87,8 +87,8 @@ body {
 
 body {
   color: rgb(var(--foreground-rgb));
-  /* background: rgb(var(--secondary-glow)); */
-  background: yellow;
+  background: rgb(var(--secondary-glow));
+  /* background: yellow; */
 }
 
 a {
