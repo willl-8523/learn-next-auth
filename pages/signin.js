@@ -4,7 +4,7 @@ import {
   getSession,
   signIn,
 } from 'next-auth/react';
-import Router, { useRouter } from 'next/router';
+import Router from 'next/router';
 import { useState } from 'react';
 
 export default function SignIn({ csrfToken, providers }) {
@@ -20,13 +20,38 @@ export default function SignIn({ csrfToken, providers }) {
 
     if (res?.error) {
       setMessage(res.error);
-      // return;
+      return;
     }
 
     console.log(res);
     console.log(email, password);
 
-    // return Router.push('/');
+    return Router.push('/');
+  };
+
+  const signUpUser = async (e) => {
+    e.preventDefault();
+    setMessage(null);
+
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    let data = await res.json();
+    if (data.message) {
+      setMessage(data.message);
+    }
+
+    if (data.message === 'Registered successfully!') {
+      let options = { redirect: false, email, password };
+      const res = await signIn('credentials', options);
+      console.log(res);
+      return Router.push('/');
+    }
   };
 
   return (
@@ -64,7 +89,7 @@ export default function SignIn({ csrfToken, providers }) {
         </label>
         <p style={{ color: 'red' }}>{message}</p>
         <button onClick={(e) => signInUser(e)}>Sign in with Credentials</button>
-        <button>Sign up</button>
+        <button onClick={(e) => signUpUser(e)}>Sign up</button>
       </form>
 
       {Object.values(providers).map((provider) => {
