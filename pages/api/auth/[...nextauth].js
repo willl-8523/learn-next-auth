@@ -70,7 +70,7 @@ export default NextAuth({
     signIn: '/signin',
   },
   secret: '1234',
-  database: process.env.MONGODB_URI,
+  // database: process.env.MONGODB_URI,
 });
 
 const signiInUser = async ({ password, user }) => {
