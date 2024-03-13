@@ -1,4 +1,4 @@
-import Users from '@/pages/models/userModel';
+import Users from '@/models/userModel';
 import bcrypt from 'bcrypt';
 
 export default async function handler(req, res) {
@@ -13,8 +13,8 @@ export default async function handler(req, res) {
   const salt = await bcrypt.genSalt(10);
 
   // Set user password to hashed password
-  const hashPassword = await bcrypt.hash(body.password, salt)
-  const newUser = new Users({email: body.email, password: hashPassword});
+  const hashPassword = await bcrypt.hash(body.password, salt);
+  const newUser = new Users({ email: body.email, password: hashPassword });
   await newUser.save();
   res.status(200).json({ message: 'Registered successfully!' });
 }
