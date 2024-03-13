@@ -13,7 +13,11 @@ import clientPromise from './lib/mongodb';
 connectDB();
 
 export default NextAuth({
-  adapter: MongoDBAdapter(clientPromise),
+  /**
+   * Add adapter when you want to signin width EmailProvider
+   */
+
+  // adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -35,17 +39,17 @@ export default NextAuth({
         }
       },
     }),
-    EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: process.env.EMAIL_SERVER_PORT,
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      },
-      from: process.env.EMAIL_FROM,
-    }),
+    // EmailProvider({
+    //   server: {
+    //     host: process.env.EMAIL_SERVER_HOST,
+    //     port: process.env.EMAIL_SERVER_PORT,
+    //     auth: {
+    //       user: process.env.EMAIL_SERVER_USER,
+    //       pass: process.env.EMAIL_SERVER_PASSWORD,
+    //     },
+    //   },
+    //   from: process.env.EMAIL_FROM,
+    // }),
     GitHubProvider({
       clientId: process.env.GITHUB_ID,
       clientSecret: process.env.GITHUB_SECRET,
@@ -72,7 +76,7 @@ const signiInUser = async ({ password, user }) => {
     throw new Error('Please enter password');
   }
 
-  const isMatch = await bcrypt.compare(password, user);
+  const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     throw new Error('Email or Password not correct');
   }
