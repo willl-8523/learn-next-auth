@@ -1,14 +1,16 @@
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Head from 'next/head';
+import Image from 'next/image';
 
 export default function Home() {
   const { data: session } = useSession();
-
+  
   let content;
   if (session) {
     content = (
       <>
         <p>Signed in as {session.user.email}</p>
+        <Image src={session.user.image} alt='' width={100} height={100} />
         <button onClick={() => signOut()}>Sign out</button>
       </>
     );
